@@ -100,12 +100,12 @@ void errorDialog() {
           //Dialog Main Title
           title: Column(
             children: <Widget>[
-              new Text(title),
+              Text(title),
             ],
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Image.network(
                 data['value'][0] 
@@ -113,7 +113,7 @@ void errorDialog() {
             ]
           ),
           actions: <Widget>[
-            new TextButton(
+            TextButton(
               child: new Text("확인"),
               onPressed: () {
                 Navigator.pop(context);

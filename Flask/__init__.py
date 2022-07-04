@@ -1,6 +1,6 @@
 from operator import methodcaller
 from unittest import result
-from flask import Flask, jsonify, request, json, request_tearing_down, redirect
+from flask import Flask, jsonify, request, json, request_tearing_down, redirect, render_template
 import json
 import requests
 from Module.ArcaconDownloader import ArcaconUtility
@@ -43,6 +43,13 @@ def getArcaconContents():
     obj = ArcaconUtility()
     return json.dumps(obj.getContentDataUrls(objPostData['strData']), ensure_ascii=False)
 
+@app.route('/')
+def showImages():
+    return render_template('test.html')
+
+
+def showImage(strImageName:str):
+    return render_template(strImageName)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)

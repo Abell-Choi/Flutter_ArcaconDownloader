@@ -1,10 +1,7 @@
 import urllib
 import requests
 from bs4 import BeautifulSoup
-from moviepy.editor import VideoFileClip
-import os
-import time
-import json
+from moviepy.editor import *
 class ArcaconUtility():
     def __init__ (self):
         self.contentUrl = 'https://arca.live/e/'
@@ -48,6 +45,27 @@ class ArcaconUtility():
                 lstUrl.append('https:' +i['data-src'])
 
         return self.__resultType('ok', lstUrl)
+
+    def getGifData(self, strUrl:str=None):
+        return self.__getGifData(strUrl)
+
+    def __getGifData(self, strUrl:str=None):
+        if strUrl == None or not type(strUrl) is str:
+            return self.__resultType('err', 'strUrl must be String')
+
+        objReqData = self.__getRequestsData(strUrl)
+        print(objReqData)
+        if objReqData['res'] != 404:
+            return self.__resultType('err', '200')
+        
+
+        strUrl = strUrl[:-3] +'mp4'
+        objReqData = self.__getRequestsData(strUrl)
+        f = open('./convertFiles/convert.mp4', 'wb')
+        f.write(objReqData['value'].content)
+        f.close()
+        VideoFileClip('./convertFiles/convert.mp4').speedx(1).write_gif('./convertFiles/out.gif')
+        return self.__resultType('ok', './convertFiles/out.gif')
     
     def convertUrlToCode(self, strUrl:str=None):
         return self.__convertUrlToCode(strUrl= strUrl)
@@ -69,7 +87,7 @@ class ArcaconUtility():
 
         if r.status_code != 200:
             return self.__resultType(r.status_code, 'not 200 code -> {0}'.format(r.status_code))
-
+        
         return self.__resultType('ok', r)
 
     def __resultType(self, strRes, objValue):
