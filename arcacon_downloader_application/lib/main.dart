@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pages/root_page.dart';
 import 'pages/download_page.dart';
+import 'utility/Arcacon_Manager.dart' as arca;
 
 void main() {
   runApp(MaterialApp(
