@@ -1,0 +1,8 @@
+version: "Apple Swift version 5.6.1 (swiftlang-5.6.0.323.66 clang-1316.0.20.12)"
+options: "9a1a92567da5ba281853eeb8aa848932366c22d4c906cd6a3183548b7eafb970"
+build_start_time: [1657003072, 335525035]
+build_end_time: [1657003072, 436236858]
+inputs:
+  "/Users/trooperalex92/git/Flutter_ArcaconDownloader/arcacon_downloader_application/macos/Flutter/GeneratedPluginRegistrant.swift": [1657003063, 785731792]
+  "/Users/trooperalex92/git/Flutter_ArcaconDownloader/arcacon_downloader_application/macos/Runner/AppDelegate.swift": [1651219715, 351044416]
+  "/Users/trooperalex92/git/Flutter_ArcaconDownloader/arcacon_downloader_application/macos/Runner/MainFlutterWindow.swift": [1651219715, 352563858]
