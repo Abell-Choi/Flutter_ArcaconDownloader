@@ -96,6 +96,7 @@ class ArcaconManager{
       dataSet.add('https:' +i.attributes['src'].toString());
     }
     
+    Map<String, String> d = {};
     return this._resultType('ok', dataSet);
   }
 
