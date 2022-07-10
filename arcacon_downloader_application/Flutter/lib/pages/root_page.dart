@@ -22,18 +22,7 @@ class _root_pageState extends State<root_page> {
     )
   );
   TextEditingController urlInputter = TextEditingController();
-
-
-  ListTile lstile(Image img, String title, String subTitle) => ListTile(
-    leading: img,
-    title: Text(title),
-    subtitle: Text(subTitle),
-    trailing: Icon(Icons.more_vert),
-    isThreeLine: true,
-  );
-
   List<Widget> listview_controller = [];
-
 
   @override
   void initState() {
@@ -41,11 +30,59 @@ class _root_pageState extends State<root_page> {
     super.initState();
   }
 
+
+  // 데이터 추가
+  void addData() async{
+    ArcaconManager arca = new ArcaconManager(this.urlInputter.text);
+    var contentInformation = await arca.getContentInformation();
+    if (contentInformation['res'] == 'err'){
+      print(contentInformation);
+      return;
+    }
+
+    String title = contentInformation['value']['title'];
+    int code = contentInformation['value']['code'];
+    List<String> contentUrlList = contentInformation['value']['contentUrlList'];
+    DateTime insertTime = DateTime.now();
+    String strDateTime = 
+    '${insertTime.year}-${insertTime.month}-${insertTime.day} ${insertTime.hour}:${insertTime.minute}:${insertTime.second}';
+    setState(() {
+      Card card = Card(
+        child: ListTile(
+          leading: Image.network(contentUrlList[0]),
+          title: Text(title),
+          subtitle: Text('$strDateTime'),
+          trailing: IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.more_vert)
+          ),
+          isThreeLine: true,
+        ),
+      );
+
+      this.listview_controller.insert(0, card);
+    });
+  }
+
+  // 유틸 단
+  void removeData(int? num){
+    setState(() {
+      if (listview_controller.length == 0){
+        return;
+      }
+      num ??= this.listview_controller.length-1;
+
+      listview_controller.removeAt(num!);
+      return ;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double screen_height = MediaQuery.of(context).size.height;
     double height_div = screen_height/5;
 
+    // 디자인 단
     return Scaffold(
       body: Center(
         child: (
@@ -82,25 +119,11 @@ class _root_pageState extends State<root_page> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: (){
-                          setState(() {
-                            listview_controller.add(
-                              Card(
-                                child: ListTile(
-                                  leading: Icon(Icons.abc),
-                                  title: Text('asdf'),
-                                  subtitle: Text('asdfff'),
-                                ),
-                              )
-                            );
-                          });
-                        }, 
+                        onPressed: (() => addData()),
                         child: Text('check data')
                         ),
                       ElevatedButton(
-                        onPressed: (){
-                          this.listview_controller.clear();
-                        }, 
+                        onPressed: ()=>removeData(null),                          
                         child: Text('flushed data')
                         )
                     ],
@@ -109,11 +132,10 @@ class _root_pageState extends State<root_page> {
               Container(
                 margin: EdgeInsets.all(0),
                 padding: EdgeInsets.all(0),
-                decoration: bx,
                 height: height_div*2,
                 child: ListView(
                   padding: EdgeInsets.all(0),
-                  children: List.from(listview_controller),
+                  children: List.castFrom(listview_controller),
                 ),
               )
             ],

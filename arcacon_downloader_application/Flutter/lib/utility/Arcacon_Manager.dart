@@ -22,6 +22,8 @@ class ArcaconManager{
   };
 
   ArcaconManager(String this.input_Url_String){
+    this.conversion_Url_String = this.input_Url_String;
+    return;
     if (this.checkUrlData() != 1){
       print(this.checkUrlData());
       this.isValidData = checkUrlData();
@@ -29,12 +31,35 @@ class ArcaconManager{
   }
 
   int checkUrlData(){
+    String targetStr = this.input_Url_String;
+    if (targetStr.indexOf(' ') != -1){
+      return -1;
+    }
+
+    if (targetStr.indexOf('?') != -1){
+      targetStr = this.input_Url_String.split('?')[0];
+    }
+    if (int.tryParse(targetStr) != null){
+      this.conversion_Url_String = 'https://arca.live/e/${this.input_Url_String}';
+      return 1;
+    }
+
+    if (targetStr.indexOf('arca.live/e/') == -1){
+      return -1;
+    }
+
+    if (targetStr.indexOf('https://') == -1 || targetStr.indexOf('http://') == -1){
+      this.conversion_Url_String = 'https://${targetStr}';
+      return 1;
+    }
+
     this.conversion_Url_String = this.input_Url_String;
     return 1;
   }
 
   // 데이터가 존재하는지 여부 확인
   Future<String> checkPostUrl() async {
+      print(this.conversion_Url_String);
     this.isValidData = -666;
     dynamic httpData;
     try{
