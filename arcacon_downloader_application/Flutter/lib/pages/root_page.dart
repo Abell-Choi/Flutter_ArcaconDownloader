@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dialog/dialog.dart';
-import '../utility/Arcacon_Manager.dart' as arca;
+import '../utility/Arcacon_Manager.dart';
 
 class root_page extends StatefulWidget {
   const root_page({super.key});
@@ -9,6 +11,9 @@ class root_page extends StatefulWidget {
 }
 
 class _root_pageState extends State<root_page> {
+  BoxDecoration bx = BoxDecoration(
+    border: Border.all()
+  );
   String lastWord = '';
   var __dec = BoxDecoration(
     border: Border.all(
@@ -16,82 +21,20 @@ class _root_pageState extends State<root_page> {
       color: Colors.blue,
     )
   );
-
-  int __stackCount = 0;
   TextEditingController urlInputter = TextEditingController();
 
-  double maxHeight = 0.0;
-  double choppedHeight = 0.0;
-  double maxWidth = 0.0;
 
-  Container listContainer(
-    Widget img,
-    String title,
-    int maxDataNum,
-    Widget progrationBar
-  ) => Container(
-    margin: EdgeInsets.all(4),
-    decoration: BoxDecoration(
-      border: Border.all(
-        color: Colors.blue,
-      ),
-      borderRadius: BorderRadius.all(Radius.circular(20)),
-    ),
-    height: choppedHeight *3 /4,
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: maxWidth / 4,
-          padding: EdgeInsets.all(0),
-          margin: EdgeInsets.all(0),
-          child: img,
-          height: double.infinity,
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: choppedHeight *3 /4 /4 *3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    //width: double.infinity,
-                    child: Text(
-                      title,
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24
-                      ),
-                    ),
-                  ),
-                  Container(
-                    //width: double.infinity,
-                    child: Text(
-                      title,
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14
-                      ),
-                    ),
-                  )
-                ],
-              )
-            ),
-            Container(
-              child: progrationBar,
-            )
-          ],
-        )
-      ],
-    ), 
+  ListTile lstile(Image img, String title, String subTitle) => ListTile(
+    leading: img,
+    title: Text(title),
+    subtitle: Text(subTitle),
+    trailing: Icon(Icons.more_vert),
+    isThreeLine: true,
   );
-  List<Container> listview_controller = [];
+
+  List<Widget> listview_controller = [];
+
+
   @override
   void initState() {
     this.urlInputter.text = 'https://arca.live/e/';
@@ -100,98 +43,83 @@ class _root_pageState extends State<root_page> {
 
   @override
   Widget build(BuildContext context) {
-    this.maxHeight = MediaQuery.of(context).size.height;
-    this.choppedHeight = this.maxHeight/7;
-    this.maxWidth = MediaQuery.of(context).size.width;
+    double screen_height = MediaQuery.of(context).size.height;
+    double height_div = screen_height/5;
 
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              height: choppedHeight * 4,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      height: choppedHeight*2,
-                    ),
-                    Text(
-                      '몰?루',
-                      style: TextStyle(
+        child: (
+          Column(   // 2열 나누기
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: height_div *1,
+              ),
+              Container(  //윗집
+                height: height_div*2,
+                  child: Column(
+                    children: [
+                      Container(
+                        height: height_div*0.5,
+                      ),
+                      Text(
+                        'Arcacon Downloader',
+                        style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20
+                        fontSize: 24
+                        ),
                       ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.all(8),
-                      width: MediaQuery.of(context).size.width /5 *3,
-                      child: TextField(
-                        controller: urlInputter,
-                        textAlign: TextAlign.center,
-                        onChanged: ((value) {
-                          if (value == lastWord){
-                            return;
-                          }
-                          if (value == null){
-                            return;
-                          }
-                          if (value.length -2 == lastWord.length){
-                            print(1);
-                            lastWord = value;
-                          }
-                          else if (value.length-2 < lastWord.length){
-                            lastWord = value;
-                          }
-                          print('$value // ${this.lastWord}');
-                        }),
+                      Container(
+                        margin: EdgeInsets.all(8),
+                        width: MediaQuery.of(context).size.width/2,
+                        child: TextField(
+                          controller: urlInputter,
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                            hintText: 'input url'
+                          ),
+                        ),
                       ),
-                    ),
-                    ElevatedButton(
-                      onPressed: (){
-                        super.setState(() {
-                          __stackCount ++;
-                          this.listview_controller.insert(
-                            0,
-                            listContainer(
-                              Icon(Icons.dangerous, size: 72, color: Colors.blue,), 
-                              'title', 
-                              999, 
-                              Text('here is new Progration bar')
-                            )
-                          );
-                          if (this.listview_controller.length > 10){
-                            this.listview_controller.removeLast();
-                          }
-                        });
-                      }, 
-                      child: Text('check Data')
-                    ),
-                    ElevatedButton(
-                      onPressed: (){
-                        setState(() {
-                          this.__stackCount = 0;
+                      ElevatedButton(
+                        onPressed: (){
+                          setState(() {
+                            listview_controller.add(
+                              Card(
+                                child: ListTile(
+                                  leading: Icon(Icons.abc),
+                                  title: Text('asdf'),
+                                  subtitle: Text('asdfff'),
+                                ),
+                              )
+                            );
+                          });
+                        }, 
+                        child: Text('check data')
+                        ),
+                      ElevatedButton(
+                        onPressed: (){
                           this.listview_controller.clear();
-                        });
-                      }, child: Text('test Flushed')
-                    ),
-                  ],
+                        }, 
+                        child: Text('flushed data')
+                        )
+                    ],
+                  ),
+                ),
+              Container(
+                margin: EdgeInsets.all(0),
+                padding: EdgeInsets.all(0),
+                decoration: bx,
+                height: height_div*2,
+                child: ListView(
+                  padding: EdgeInsets.all(0),
+                  children: List.from(listview_controller),
                 ),
               )
-            ),
-            Container(
-              height: this.choppedHeight * 3,
-              margin: EdgeInsets.all(0),
-              child: ListView(
-                padding: EdgeInsets.all(0),
-                children: List.from(this.listview_controller),
-              ),
-            )
-          ],
+            ],
+          )
         ),
-      )
+      ),
     );
   }
 }

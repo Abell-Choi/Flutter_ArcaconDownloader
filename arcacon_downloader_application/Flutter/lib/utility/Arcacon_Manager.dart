@@ -1,5 +1,7 @@
 
 //import 'package:flutter/material.dart';//??
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' as parser;
@@ -20,62 +22,58 @@ class ArcaconManager{
   };
 
   ArcaconManager(String this.input_Url_String){
-    conversion_Url_String = this.input_Url_String;
-    if (checkUrlData() < 0){
+    if (this.checkUrlData() != 1){
+      print(this.checkUrlData());
       this.isValidData = checkUrlData();
     }
-    checkPostUrl();
   }
 
   int checkUrlData(){
-    String target_Url_String = this.conversion_Url_String;
-    //digit test
-    if (int.tryParse(target_Url_String) != null){
-      this.conversion_Url_String = 'https://arca.live/e/${this.conversion_Url_String}';
-      return 1;
-    }
-
-    if (this.conversion_Url_String.indexOf('http://') == -1 &&
-        this.conversion_Url_String.indexOf('https:/') == -1){
-          if (this.conversion_Url_String.indexOf('arca.live/e/') == -1){
-            return -1;
-          }
-          this.conversion_Url_String = 'https://${this.conversion_Url_String}';
-          return -1;
-        }
-    return -1;
-
+    this.conversion_Url_String = this.input_Url_String;
+    return 1;
   }
 
   // 데이터가 존재하는지 여부 확인
-  void checkPostUrl() async {
+  Future<String> checkPostUrl() async {
+    this.isValidData = -666;
     dynamic httpData;
     try{
       httpData = await http.get(Uri.parse(this.conversion_Url_String));
     }catch(e){
-      print(e.toString());
+      print('err1 -> ' +e.toString());
       this.isValidData = -1;
-      return;
+      return 'err';
     }
-
     this.httpDataDoc = parser.parse(httpData.body);
-    getContentUrlList();
     String sel = 'div.article-body > *.emoticons-wrapper > *.emoticon';
     try{
       List<dynamic> selection = this.httpDataDoc!.querySelectorAll(sel);
       if (selection.length == 0){
         this.isValidData = 1;
-        return;
+        print(this.isValidData);
+        return 'ok';
       }
     }catch(e){
       print(e.toString());
       this.isValidData = -2;
-      return;
+      return 'err';
     }
-
+    this.isValidData = 1;
+    return 'done';
   }
 
-  Map<String, dynamic> getTitle(){
+  Future<void> aliveChecker() async{
+    if (this.isValidData == -666 || this.isValidData == -999){
+      await checkPostUrl();
+    }
+  }
+
+  Future<Map<String, dynamic>> getTitle() async {
+    await aliveChecker();
+    if (this.isValidData == -999){
+      await checkPostUrl();
+    }
+
     if (this.isValidData != 1){
       return this._resultType('err', this.isValidData);
     }
@@ -85,7 +83,9 @@ class ArcaconManager{
 
   }
 
-  Map<String, dynamic> getContentUrlList(){
+  Future <Map<String, dynamic>> getContentUrlList() async{
+    await aliveChecker();
+    
     if (this.isValidData != 1){
       return this._resultType('err', this.isValidData);
     }
@@ -107,6 +107,43 @@ class ArcaconManager{
     resTemp['type'] = resTemp['value'].runtimeType;
 
     return resTemp;
+  }
+
+  Future <Map<String, dynamic>> getArcaconCode() async{
+    await aliveChecker();
+    
+    if (this.isValidData != 1){
+      return this._resultType('err', 'some err');
+    }
+
+    if (this.conversion_Url_String.split('?') != -1){
+      return this._resultType('ok', 4444);
+    }
+
+    return this._resultType('ok', this.conversion_Url_String.split('/')[this.conversion_Url_String.split('/').length-1]);
+  }
+
+  Future <Map<String, dynamic>> getContentInformation() async{
+    await aliveChecker();
+
+    if (this.isValidData != 1){
+      return this._resultType('err', this.isValidData);
+    }
+    dynamic data = await getTitle();
+    String title = data['value'];
+    data = await getContentUrlList();
+    List<String> dataUrlList = data['value'];
+    data = await getArcaconCode();
+    int arcaconCode = data['value'];
+
+    return _resultType(
+      'ok',
+      <String, dynamic>{
+        'title' : title,
+        'contentUrlList' : dataUrlList,
+        'code' : arcaconCode
+      } 
+    );
   }
 }
 
