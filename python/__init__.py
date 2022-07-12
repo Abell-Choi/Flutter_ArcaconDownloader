@@ -14,6 +14,12 @@ def __resultType(strRes:str='err', objValue:all='err'):
         'type' : str(type(objValue))
     }
 
+@app.route('/', methods=['POST'])
+def root():
+    objPostData = request.values.to_dict()
+    if not 'strKey' in objPostData.keys() : return json.dumps(__resultType('err', 'need strKey'), ensure_ascii=False, indent=4)
+    return json.dumps(__resultType('ok', objPostData['strKey']), ensure_ascii=False, indent=4)
+
 @app.route('/getArcaconInformation', methods=['POST'])
 def getArcaconInformation():
     objPostData = request.values.to_dict()
@@ -30,7 +36,8 @@ def convertMP4toGIF():
     strTargetUrl = converter.mp4ToGif()
     if strTargetUrl == None:
         return json.dumps(__resultType('err', 'some err in working'), ensure_ascii=False)
-    return imageRedirection('{0}'.format(strTargetUrl))
+    return json.dumps(__resultType('ok', '/file/redirect/{0}'.format(strTargetUrl)))
+    # return imageRedirection('{0}'.format(strTargetUrl))
 
 @app.route('/file/redirect/<filename>')
 def imageRedirection(filename):

@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:arcacon_downloader_application/pages/option_page.dart';
 import 'package:flutter/material.dart';
-import 'dialog/dialog.dart';
-import '../utility/Arcacon_Manager.dart';
+import '../utility/Flask_Connect_Manager.dart';
+import '../utility/File_Manager.dart';
+import 'package:get/get.dart';
 
 class root_page extends StatefulWidget {
   const root_page({super.key});
@@ -24,22 +27,22 @@ class _root_pageState extends State<root_page> {
   TextEditingController urlInputter = TextEditingController();
   List<Widget> listview_controller = [];
 
+  Map<String, String> option = {
+    'url' : 'http://127.0.0.1:8080',
+  };
+
   @override
-  void initState() {
+  void initState() async {
     this.urlInputter.text = 'https://arca.live/e/';
+    FileManager fs = new FileManager('');
+    this.option = jsonDecode(await fs.getOptionData());
+    print(this.option);
     super.initState();
   }
 
 
   // 데이터 추가
-  void addData() async{
-    ArcaconManager arca = new ArcaconManager(this.urlInputter.text);
-    var contentInformation = await arca.getContentInformation();
-    if (contentInformation['res'] == 'err'){
-      print(contentInformation);
-      return;
-    }
-
+  /*void addData() async{
     String title = contentInformation['value']['title'];
     int code = contentInformation['value']['code'];
     List<String> contentUrlList = contentInformation['value']['contentUrlList'];
@@ -63,6 +66,7 @@ class _root_pageState extends State<root_page> {
       this.listview_controller.insert(0, card);
     });
   }
+  */
 
   // 유틸 단
   void removeData(int? num){
@@ -118,14 +122,32 @@ class _root_pageState extends State<root_page> {
                           ),
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: (() => addData()),
+                      ElevatedButton( //check data
+                        //onPressed: (() => addData()),
+                        
+                        onPressed: () async{
+                          FileManager fs = FileManager('test');
+                          await fs.setOptionData({'option' : 'none'});
+                          print(await fs.getOptionData());
+                          
+                          //BackEndManager bk = new BackEndManager(this.option['url']!);
+                          //String aw = 'https://ac2-p2.namu.la/20220426sac2/87909912f8682bfbd446db39fa0124ff21c01da62b63be82341c7dd36f377bdf.mp4';
+                          //print(await bk.mp4ToGIF(aw));
+                        },
                         child: Text('check data')
                         ),
-                      ElevatedButton(
+
+                      ElevatedButton( // flush data
                         onPressed: ()=>removeData(null),                          
                         child: Text('flushed data')
-                        )
+                        ),
+                      ElevatedButton(
+                        onPressed: () async{
+                          final resp = await Get.dialog(Option_Page());
+                          option = resp;
+                          print('resp -> ' +resp.toString());
+                        }, 
+                        child: Text('options'))
                     ],
                   ),
                 ),

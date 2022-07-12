@@ -9,6 +9,9 @@ class MediaManager:
 
         pass
     
+    def getTargetLink(self):
+        return self.strFileUid
+
     def mp4ToGif(self):
         req = requests.get(self.targetUrl).content
         f = open('./image_temp/{0}.mp4'.format(self.strFileUid), 'wb')
