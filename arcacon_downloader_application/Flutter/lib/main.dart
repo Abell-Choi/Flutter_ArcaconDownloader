@@ -1,8 +1,8 @@
-import 'package:arcacon_downloader_application/pages/option_page.dart';
+import 'dart:convert';
+
+import 'package:arcacon_downloader_application/pages/main_page.dart';
 import 'package:flutter/material.dart';
-import 'pages/root_page.dart';
-import 'pages/download_page.dart';
-import 'utility/Arcacon_Manager.dart' as arca;
+import './utility/File_Manager.dart';
 
 import 'package:get/get.dart';
 
@@ -14,19 +14,23 @@ void main() {
         name: '/', 
         page: ()=> Splash()
       ),
-      GetPage(
-        name: '/root',
-        page: () => root_page()
-      ),
     ],
   ));
 }
 
 class Splash extends StatelessWidget {
-  const Splash({super.key});
+  //const Splash({super.key});
+
+  Map<String, dynamic> options = {'url' : 'http://127.0.0.1'};
+
+  Future<dynamic> getInitData() async {
+    var Options = FileManager('');
+    return jsonDecode(await Options.getOptionData());
+  }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Center(
         child: Container(
@@ -35,8 +39,9 @@ class Splash extends StatelessWidget {
             children: [
               Text('click next'),
               ElevatedButton(
-                onPressed: (){
-                  Get.to(root_page());
+                onPressed: () async {
+                  this.options = await this.getInitData();
+                  Get.off(() => HomePage(), arguments: this.options);
               }, 
               child: Text('move next'))
             ],

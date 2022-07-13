@@ -38,6 +38,10 @@ dependencies:
   html: ^0.15.0
   get: ^4.6.5
   path_provider: ^2.0.11
+  image: ^3.2.0
+  dio: ^4.0.6
+  gallery_saver: ^2.3.2
+  image_gallery_saver: ^1.7.1
 
 dev_dependencies:
   flutter_test:
