@@ -75,4 +75,13 @@ class FlaskManager{
       }
     );
   }
+
+  Future< dynamic> convertMP4ToGIF( String strUrl ) async{
+    return this.__getConnectResult(
+      this.backendUrl +'/convertMP4ToGIF',
+      <String, dynamic> {
+        this.backendTable['convertMP4ToGIF'] : strUrl
+      }
+    );
+  }
 }

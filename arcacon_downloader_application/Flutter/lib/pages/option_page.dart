@@ -12,6 +12,7 @@ class Option_Page extends StatefulWidget {
 
 class _Option_PageState extends State<Option_Page> {
   TextEditingController urlController = TextEditingController();
+  TextEditingController portController = TextEditingController();
   var options = Get.arguments;
 
   Card _optionCard(
@@ -45,6 +46,7 @@ class _Option_PageState extends State<Option_Page> {
   @override
   void initState() {
     this.urlController.text = options['url'];
+    this.portController.text = options['port'].toString();
     super.initState();
   }
 
@@ -72,8 +74,14 @@ class _Option_PageState extends State<Option_Page> {
               this._optionCard(
                 'url',
                 Icon(Icons.rounded_corner), 
-                'url Controller', 
+                'Backend URL', 
                 urlController
+              ),
+              this._optionCard(
+                'port',
+                Icon(Icons.portrait_rounded),
+                'PORT Num',
+                portController
               ),
               Container(
                 width: MediaQuery.of(context).size.width/3,
@@ -81,6 +89,7 @@ class _Option_PageState extends State<Option_Page> {
                   child: Text('go back'),
                   onPressed: (){
                     options['url'] = urlController.text;
+                    options['port'] = portController.text;
                     Get.back();
                   },
                 ),

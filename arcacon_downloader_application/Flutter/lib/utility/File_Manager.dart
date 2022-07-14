@@ -68,25 +68,35 @@ class FileManager{
   Future<String> getOptionData() async{
     File file = await File(await this.getDeviceTemp() +'options.json');
     if ( await file.exists() == false ){
-      // make new json options
-      print('make new file');
-      Map<String, String> option = {
-        'url' : 'http://127.0.0.1:8080',
-      };
-
-      String strJsonData = jsonEncode(option);
-      await file.writeAsString(strJsonData);
+      this._optionDataRefrash();
     }
 
     file = await File(await this.getDeviceTemp() +'options.json');
-    String readData = await file.readAsString(); 
+    String readData = await file.readAsString();
+
+    try{
+      jsonDecode(readData);
+    }catch(e){
+      print('err -> $e');
+      this._optionDataRefrash();
+      return getOptionData();
+    }
     return readData;
+  }
+
+  Future<void> _optionDataRefrash() async{
+    File file = await File(await this.getDeviceTemp() +'options.json');
+    Map<String, dynamic> option = {
+      'url' : 'http://127.0.0.1',
+      'port' : 8080
+    };
+
+    await file.writeAsString(jsonEncode(option));
   }
 
   Future<bool> setOptionData(Map<String, dynamic> optionData) async{
     File file = await File(await this.getDeviceTemp() +'options.json');
     await file.writeAsString(jsonEncode(optionData));
-
     return true;
   }
 
