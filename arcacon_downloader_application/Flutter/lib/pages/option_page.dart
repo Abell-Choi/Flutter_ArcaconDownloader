@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
-
 import 'package:get/get.dart';
+
 class Option_Page extends StatefulWidget {
   const Option_Page({super.key});
 
@@ -13,6 +13,35 @@ class Option_Page extends StatefulWidget {
 class _Option_PageState extends State<Option_Page> {
   TextEditingController urlController = TextEditingController();
   var options = Get.arguments;
+
+  Card _optionCard(
+    String optionKey,
+    Icon icon,
+    String title,
+    TextEditingController textField_Controller,
+    {ElevatedButton? btn}
+  ){
+    return Card(
+      child: ListTile(
+        leading: icon,
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        subtitle: TextField(
+          controller: textField_Controller,
+          textAlign: TextAlign.start,
+          onChanged: (value) {
+            this.options[optionKey] = value;
+          },
+        ),
+        trailing: btn,
+      ),
+    );
+  }
   @override
   void initState() {
     this.urlController.text = options['url'];
@@ -40,17 +69,11 @@ class _Option_PageState extends State<Option_Page> {
                   ),  
                 ),
               ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.web),
-                  title: Text('input backend URL'),
-                  subtitle: TextField(
-                    controller: urlController,
-                    onChanged: (value) {
-                      this.options['url'] = this.urlController.text;
-                    },
-                  ),
-                ),
+              this._optionCard(
+                'url',
+                Icon(Icons.rounded_corner), 
+                'url Controller', 
+                urlController
               ),
               Container(
                 width: MediaQuery.of(context).size.width/3,

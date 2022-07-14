@@ -1,11 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 
-
 class ArcaconManager:
     def __init__(self, strTargetUrl):
         self.strTargetUrl:str = strTargetUrl
         self.lstEmoticonUrl:list = []
+        self.lstEmoticonDataID:list = []
         self.strTitle:str = ''
         self.strMaker:str = ''
         self.strEmoticonTitleImg:str = ''
@@ -28,7 +28,9 @@ class ArcaconManager:
                 'title-img' : self.strEmoticonTitleImg,
                 'maker' : self.strMaker,
                 'datetime' : self.strDateTime,
-                'conList' : self.lstEmoticonUrl
+                'conList' : self.lstEmoticonUrl,
+                'conData-Id' : self.lstEmoticonDataID,
+                'conDataId' : None
             }
         )
     
@@ -66,29 +68,29 @@ class ArcaconManager:
             return self.__resultType('no', 'no Arcacon Url')
         self.strTitle = bs.select('*.title-row > *.title')[0].text
         self.strMaker = bs.select('.member-info')[0].text
-        self.strEmoticonTitleImg = self.getContentTitle(self.strTargetUrl)['value']
         self.strDateTime = bs.select('time')[0].text
         #print(bs.select('.emoticons-wrapper')[0].select('*.emoticon'))
         for i in bs.select('.emoticons-wrapper')[0].select('*.emoticon'):
+            self.lstEmoticonDataID.append(i['data-id'])
             try:
                 self.lstEmoticonUrl.append('https:' +i['src'])
             except:
                 self.lstEmoticonUrl.append('https:' +i['data-src'])
 
         self.isComplite = True
+        self.strEmoticonTitleImg = self.getContentTitle()['value']
 
-    def getContentTitle(self, strUrl:str=None):
+    def getContentTitle(self):
         ''' 
         strUrl에 아카콘 링크주소를 넣으면\n
         자동적으로 해당 아카콘의 메인이미지를 return 할 것 입니다.     
         '''
-        if strUrl == None:
-            return self.__typeError('strUrl', str)
-
         if not self.isComplite:
             return self.__resultType('err', 'is not compliling data')
         
-        strTargetUrl = 'https://arca.live/e/?target=title&keyword={0}'.format(resValid['value'][1:-2])
+        self.strTitle = self.strTitle[1:-1]
+        print(self.strTitle)
+        strTargetUrl = 'https://arca.live/e/?target=title&keyword={0}'.format(self.strTitle)
         req = self.__getContent(strTargetUrl)
         if req['res'] == 'err':
             return req
@@ -119,3 +121,4 @@ class ArcaconManager:
             'value' : objValue,
             'type' : str(type(objValue))
         }
+

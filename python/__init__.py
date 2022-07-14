@@ -26,7 +26,7 @@ def getArcaconInformation():
     if not 'strTargetLink' in objPostData.keys(): return json.dumps(__resultType('err', 'strTargetLink must input post data'), ensure_ascii=False)
     obj = ArcaconManager(objPostData['strTargetLink'])
     if obj.isValidData() == False: return json.dumps(__resultType('err', 'not valid data'))
-    return json.dumps(__resultType('ok', obj.getAllData()), ensure_ascii=False, indent=4)
+    return json.dumps(obj.getAllData(), ensure_ascii=False, indent=4)
 
 @app.route('/convertMP4ToGIF', methods=['POST'])
 def convertMP4toGIF():
@@ -36,7 +36,7 @@ def convertMP4toGIF():
     strTargetUrl = converter.mp4ToGif()
     if strTargetUrl == None:
         return json.dumps(__resultType('err', 'some err in working'), ensure_ascii=False)
-    return json.dumps(__resultType('ok', '/file/redirect/{0}'.format(strTargetUrl)))
+    return json.dumps(__resultType('ok', '/file/redirect/{0}'.format(strTargetUrl)), ensure_ascii=False, indent=4)
     # return imageRedirection('{0}'.format(strTargetUrl))
 
 @app.route('/file/redirect/<filename>')
