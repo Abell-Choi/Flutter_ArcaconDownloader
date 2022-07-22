@@ -29,12 +29,22 @@ class AppController extends GetxService {
     isInitialized.value = false;
     super.onClose();
   }
+
+  Future<Map<String, dynamic>> setOptionData( Map<String,dynamic> data) async {
+    var res = await FileManager().setOptionData(data);
+    if (res['res'] == 'err'){
+      return res;
+    }
+    this.optionData = data;
+    print('new data inputted -> option.json\n${this.optionData}');
+    return res;
+  }
   
   // 초기화 루틴
   Future<void> initialize() async {
 
     Map<String, dynamic> _optionData = await FileManager().getOptionData();
-
+    print(_optionData);
     if (_optionData!['res'] == 'err'){
       resultData = _optionData.obs;
       return;

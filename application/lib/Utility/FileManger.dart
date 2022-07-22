@@ -6,6 +6,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:http/http.dart' as http;
 
+// custom module
+import './FlaskManager.dart';
+
 class FileManager{
   String _optionFileName = 'option.json';
   String? _appPath;
@@ -78,5 +81,14 @@ class FileManager{
         'value' : 'some error with saving -> ${e}',
       };
     }
+  }
+
+  Future<bool> downloadArcacon(String url, String group) async {
+    bool? res = await GallerySaver.saveImage(
+      url,
+      albumName: group,
+    );
+
+    return res!;
   }
 }
