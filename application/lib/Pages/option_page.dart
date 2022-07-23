@@ -16,6 +16,7 @@ class _OptionPageState extends State<OptionPage> {
   AppController c = Get.put(AppController());
   TextEditingController _urlController = TextEditingController();
   TextEditingController _portController = TextEditingController();
+  TextEditingController _refreshController = TextEditingController();
   Map<String, dynamic> _arg = {};
 
   Card _customCard(IconData icon, String title, Widget content){
@@ -33,6 +34,7 @@ class _OptionPageState extends State<OptionPage> {
   void initState() {
     this._urlController.text = c.optionData!['url'];
     this._portController.text = c.optionData!['port'].toString();
+    this._refreshController.text = c.optionData!['refreshDelay'].toString();
     this._arg = Get.arguments;
     super.initState();
   }
@@ -48,8 +50,13 @@ class _OptionPageState extends State<OptionPage> {
       this._portController.text = c.optionData!['port'].toString();
     }
 
+    if (int.parse(this._refreshController.text) < 100){
+      this._refreshController.text = c.optionData!['refreshDelay'].toString();
+    }
+
     this._arg['url'] = this._urlController.text;
     this._arg['port'] = int.parse(this._portController.text);
+    this._arg['refreshDelay'] = int.parse(this._refreshController.text);
     print(this._arg);
     super.dispose();
   }
@@ -75,11 +82,17 @@ class _OptionPageState extends State<OptionPage> {
                 ),
                 padding: EdgeInsets.fromLTRB(0,0,0,20),
               ),
-              this._customCard(Icons.abc, 'asdf', TextField(
+              this._customCard(Icons.abc, '백앤드 URL', TextField(
                 controller: this._urlController,
               )),
               this._customCard(Icons.numbers, 'port', TextField(
                 controller: this._portController,
+              )),
+              this._customCard(Icons.network_cell, '딜레이(ms)', TextField(
+                controller: this._refreshController,
+                decoration: InputDecoration(
+                  hintText: '백앤드 서버 연결확인 주기 (ms)'
+                ),
               )),
 
               ElevatedButton(

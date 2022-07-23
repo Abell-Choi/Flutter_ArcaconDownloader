@@ -45,4 +45,13 @@ def imageRedirection(filename):
         'image_temp/{0}'.format(filename , mimetypes='image/gif')
     ) 
 
+@app.route('/')
+def root_page():
+    return json.dumps(
+        {
+            'res' : 'ok',
+            'value' : 'API server is running'
+        }
+    )
+
 app.run(host='0.0.0.0', port=8080, debug=True)

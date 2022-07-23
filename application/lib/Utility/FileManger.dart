@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart'; 
 
 // custom module
 import './FlaskManager.dart';
@@ -14,7 +15,8 @@ class FileManager{
   String? _appPath;
   Map<String, dynamic> _defaultOptionData = {
     'url' : 'http://127.0.0.1',
-    'port' : 8080
+    'port' : 8080,
+    'refreshDelay' : 2000,
   };
 
   Future<void> _updateAppPath() async{
@@ -82,6 +84,66 @@ class FileManager{
       };
     }
   }
+
+  Future<Map<String, dynamic>> addDownloadLog (String conName) async {
+    await _updateAppPath();
+    File _targetFile = await File(
+      "${this._appPath}${conName}.json"
+    );
+
+    if (await _targetFile.exists()){
+      return {
+        'res' : 'err',
+        'value' : 'already exists data'
+      };
+    }
+    var now = new DateTime.now();
+    String formatDate = DateFormat('yy/MM/dd - HH:mm:ss').format(now);
+    
+    try{
+      await _targetFile.create();
+      await _targetFile.writeAsString(
+        jsonEncode({
+          'inputDate' : formatDate
+        })
+      );
+    }catch(e){
+      return {'res' : 'err', 'value' : 'some err -> $e'};
+    }
+
+    return {
+      'res' : 'ok',
+      'value' : '$conName.json is created'
+    };
+  }
+
+  Future<Map<String, dynamic>> delDownloadLog (String conName) async {
+    await _updateAppPath();
+    File _targetFile = await File(
+      "${this._appPath}${conName}.json"
+    );
+
+    if (!await _targetFile.exists()){
+      return {
+        'res' : 'err',
+        'value' : '$conName is not exists'
+      };
+    }
+
+    try{
+      await _targetFile.delete();
+    }catch(e){
+      return {
+        'res' : 'err',
+        'value' : 'some err in proc -> $e'
+      };
+    }
+    return {
+      'res' : 'ok',
+      'value' : '$conName.json is deleted'
+    };
+  }
+  
 
   Future<bool> downloadArcacon(String url, String group) async {
     bool? res = await GallerySaver.saveImage(

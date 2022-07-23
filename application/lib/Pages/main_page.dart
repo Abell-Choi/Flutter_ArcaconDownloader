@@ -1,3 +1,4 @@
+
 import 'package:application/Utility/FileManger.dart';
 import 'package:application/Utility/FlaskManager.dart';
 import 'package:get/get.dart';
@@ -20,9 +21,15 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   AppController c = Get.put(AppController());
+  bool _isDisposed = false;
   Map<String, dynamic> _optionData = {};
-  List<Widget> _downloadProgress = [];
+  List<Map<String, dynamic>> _downloadProgress = [];
   Map<String, dynamic> _downloadState = {};
+
+  Map<String, dynamic> _backendStates = {
+    'res' : 'err',
+    'value' : 'err'
+  };
 
   String _title = 'Arcacon Downloader';  
   String _downloadString = 'DOWNLOAD';
@@ -43,18 +50,62 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  _setBackendStates({isOneProc = false}) async {
+    int _maxStack = isOneProc?-1:1;
+
+    while(!this._isDisposed && !(_maxStack==0)){
+      _maxStack ++;
+      //print('conf');
+      //print(_maxStack);
+      await Future.delayed(Duration(milliseconds: this.c.optionData!['refreshDelay']));
+      if (_flaskManager == null){
+        this._backendStates = {
+          'res' : 'err',
+          'value' : '_flask connection err'
+        };
+        continue;
+      }
+      this._backendStates = await _flaskManager!.getBackendStates();
+      setState(() { });
+    }
+    
+    return true;
+  }
+
+  List<dynamic> _getBackendStatesIcon() {
+    List<dynamic> res = <dynamic> [
+      Icon(Icons.wifi),
+      Icon(Icons.wifi_tethering),
+      Color.fromARGB(0, 0, 0, 255)
+    ];
+
+    if (this._backendStates['res'] == 'err'){
+      res =  <dynamic> [
+        Icon(Icons.wifi_tethering_error),
+        Icon(Icons.error),
+        Color.fromRGBO(255, 93, 93, 1)
+      ];
+    }
+    return res;
+  }
+
   _downloadImage(String title, List<dynamic> targetUrl, dynamic conInfo) async {
     if (_downloadState.keys.toList().indexOf(title) == -1){
+
+      var now = new DateTime.now();
+      String formatDate = DateFormat('yy/MM/dd - HH:mm:ss').format(now);
       _downloadState[title] = {
+        'index' : 0,
         'res' : <bool>[],
         'no' : 0,
         'max' : targetUrl.length,
         'info' : conInfo,
         'break' : false,
+        'startAt' : formatDate,
       };
-    }
 
-    _addCustomCard(title);
+      _downloadProgress.add(_downloadState[title]);
+    }
     for (String i in targetUrl){
       if (_downloadState[title]['break']){
         return;
@@ -65,20 +116,22 @@ class _MainPageState extends State<MainPage> {
           title
         )
       );
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(milliseconds: 500));
       setState(() {
         _downloadState[title]['no'] ++;
         print(_downloadState[title]['no']);
       });
     }
+
+    _downloadState[title]['break'] = true;
+    _downloadProgress.remove(_downloadState[title]);
+    setState(() {});
   }
 
-  _addCustomCard(title){
+  Card _getListedCard(String title){
     double max = _downloadState[title]['max'].toDouble();
     double valNow = _downloadState[title]['no'].toDouble();
     double _value = valNow / max;
-    var now = new DateTime.now();
-    String formatDate = DateFormat('yy/MM/dd - HH:mm:ss').format(now);
     Card cd = Card(
       child: ListTile(
         leading: Image.network(_downloadState[title]['info']['title-img']),
@@ -92,7 +145,7 @@ class _MainPageState extends State<MainPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("$formatDate"),
+            Text("${_downloadState[title]['startAt']}"),
             Text("${_downloadState[title]['no'].toString()} / ${_downloadState[title]['max'].toString()}")
             //Text('a'),
             //Text('b')
@@ -107,10 +160,7 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
     );
-
-    setState(() {
-      this._downloadProgress.add(cd);    
-    });
+    return cd;
   }
 
   Widget getDownloadButton(String txt){
@@ -130,6 +180,15 @@ class _MainPageState extends State<MainPage> {
   }
 
   _downloadFunc() async { //download Function
+    if (this._backendStates['res'] == 'err'){
+      GetSnackBar(
+        title: '에러',
+        message: '백앤드 서버가 연결되지 않았습니다.',
+        duration: Duration(seconds: 5),
+        snackPosition: SnackPosition.TOP,
+      ).show();
+      return;
+    }
     Map<String, dynamic> res = await _flaskManager!.getArcaconInformation(strUrl: _urlController.text);
     if (res['res'] == 'err'){
       Get.showSnackbar(GetSnackBar(
@@ -141,7 +200,6 @@ class _MainPageState extends State<MainPage> {
     }
 
     // custom args
-    print(res['value'].keys);
 
     Map<String, dynamic> _customArgs = Map.from(res['value']);
     _customArgs['title-img'] = await this._convertMp4ToGIF(_customArgs['title-img']);
@@ -190,7 +248,6 @@ class _MainPageState extends State<MainPage> {
   }
   
   _optionFunc() async {
-    print(_optionData);
     await Get.to(()=>OptionPage(), arguments: _optionData);
     await c.setOptionData(this._optionData);
     print(this._optionData);
@@ -216,7 +273,15 @@ class _MainPageState extends State<MainPage> {
       this._optionData['url'],
       backendPort: this._optionData['port'],
     );
+    
+    this._setBackendStates();
     //_addCustomCard('test');
+  }
+
+  @override
+  void dispose() {
+    this._isDisposed = true;
+    super.dispose();
   }
 
   @override
@@ -263,24 +328,52 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ),
                 ),
+                Container(
+                  alignment: Alignment.center,
+                  width: size.width *.7,
+                  child: Card(
+                    color: _getBackendStatesIcon()[2],
+                    child: ListTile(
+                      onLongPress: () async {
+                        await Get.to(OptionPage(), arguments: _optionData);
+                        c.setOptionData(_optionData);
+                      },
+                      onTap: () => _setBackendStates(isOneProc: true),
+
+                      leading: this._getBackendStatesIcon()[0],
+                      title: Text('Backend Status', textAlign: TextAlign.center,),
+                      trailing: this._getBackendStatesIcon()[1],
+                    ),
+                  ),
+                ),
                 ButtonBar(
                   alignment: MainAxisAlignment.center,
                   children: [
                     this.getDownloadButton(this._downloadString),
                     this.getOptionbutton(this._optionString),
-                    ElevatedButton(onPressed: (){
-                      this._addCustomCard('asdfasdfsa');
-                    }, child: Text('ddd'))
+                    ElevatedButton(
+                      onPressed: (){
+                        print('re');
+                        for (dynamic i in _downloadProgress){
+                          i['break'] = true;
+                        }
+
+                        _downloadProgress = List.from([]);
+                      },
+                      child: this._defaultTextCustom('RESET')
+                    )
                   ],
                 ),
               ],
             ),
           ),
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.all(8),
-              children: this._downloadProgress,
-            )
+            child: ListView.builder(
+              padding: EdgeInsets.all(0),
+              itemCount: this._downloadProgress.length,
+              itemBuilder: ((context, index) {
+                return _getListedCard(_downloadProgress[index]['info']['title']);
+            })),
           ),
         ],
       ),

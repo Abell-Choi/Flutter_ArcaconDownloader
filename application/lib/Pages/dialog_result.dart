@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../Utility/FileManger.dart';
+
 class Result_Dialog extends StatefulWidget {
   const Result_Dialog({super.key});
 
@@ -93,7 +95,16 @@ class _Result_DialogState extends State<Result_Dialog> {
           ButtonBar(
             children: [
               ElevatedButton(
-                onPressed: ()=> Get.back(result: true),
+                onPressed: () async {
+                  var existsCheck = await FileManager().addDownloadLog(_arg['title']);
+                  if (existsCheck['res'] == 'err'){
+                    var res = await Get.dialog(_alreadyExistCheck());
+                    if (res == null || res == false){
+                      Get.back(result: null);
+                    }
+                  }
+                  Get.back(result: true);
+                } ,
                 child: Text('$_downloadString')
               ),
               ElevatedButton(
@@ -105,5 +116,32 @@ class _Result_DialogState extends State<Result_Dialog> {
         ],
       ),
     ));
+  }
+}
+
+
+class _alreadyExistCheck extends StatelessWidget {
+  const _alreadyExistCheck({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('경고'),
+      content: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error),
+          Text('해당 데이터는 이미 다운받은 데이터입니다.\n그래도 다운로드 하시겠습니까?')
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: (){
+          Get.back(result: true);
+        }, child: Text("확인")),
+        TextButton(onPressed: (){
+          Get.back(result: false);
+        }, child: Text('취소'))
+      ],
+    );
   }
 }

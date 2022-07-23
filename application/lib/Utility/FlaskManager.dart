@@ -20,7 +20,6 @@ class FlaskManager{
     this.backendPort ??= 8080;
     this.backendUrl = _urlConstructor(backendUrl)!;
     this.targetUrl = targetUrl;
-    print(this.backendUrl);
     
   }
 
@@ -31,8 +30,7 @@ class FlaskManager{
 
     if (url.substring(url.length-1) == '/'){
       url = url.substring(0, url.length-1);
-    }
-    url += ':${this.backendPort}/';
+    };
     return url;
   }
 
@@ -47,11 +45,30 @@ class FlaskManager{
       return <String, dynamic> {'res' : 'err', 'value' : '$e'};
     }
     Map<String, dynamic> resData;
+    //print(parser.parse(postData.body).querySelector('body')!.text);
     try{
       resData = jsonDecode(parser.parse(postData.body).querySelector('body')!.text);
     }catch(e){
       return <String, dynamic> {'res' : 'err', 'value' : '$e'};
     }
+    return resData;
+  }
+
+  Future <Map<String, dynamic>> __getConnectResultGet( String url, {Map<String, String>? body}) async{
+    Response postData;
+    try{
+      postData = body==null?await http.get(Uri.parse(url)):await http.get(Uri.parse(url), headers: body!);
+    }catch(e){
+      return <String, dynamic> {'res' : 'err' , 'value' : '$e'};
+    }
+
+    Map<String ,dynamic> resData;
+    try{
+      resData = jsonDecode(parser.parse(postData.body).querySelector('body')!. text);
+    }catch(e){
+      return <String, dynamic> {'res' : 'err', 'value' : '$e'};
+    }
+
     return resData;
   }
 
@@ -62,6 +79,13 @@ class FlaskManager{
     };
   }
 
+  Future< Map<String, dynamic> > getBackendStates({String? strUrl}) async{
+    strUrl ??= "${this.backendUrl}:${this.backendPort.toString()}";
+    return this.__getConnectResultGet(
+      strUrl!
+    );
+  }
+
   Future< Map<String, dynamic> > getArcaconInformation({String? strUrl}) async {
     strUrl ??= this.targetUrl;
     if (strUrl == null || strUrl.indexOf(' ') != -1) {
@@ -69,7 +93,7 @@ class FlaskManager{
       return this._error('check your strUrl');
     };
     return this.__getConnectResult(
-      this.backendUrl +'/getArcaconInformation',
+      '${this.backendUrl}:${this.backendPort.toString()}/getArcaconInformation',
       <String, dynamic>{
         this.backendTable['getArcaconInformation'] : strUrl
       }
@@ -78,7 +102,7 @@ class FlaskManager{
 
   Future< dynamic> convertMP4ToGIF( String strUrl ) async{
     return this.__getConnectResult(
-      this.backendUrl +'/convertMP4ToGIF',
+      '${this.backendUrl}:${this.backendPort.toString()}/convertMP4ToGIF',
       <String, dynamic> {
         this.backendTable['convertMP4ToGIF'] : strUrl
       }
