@@ -4,16 +4,19 @@ class DBManager:
     def __init__( 
         self, 
         strURL : str, 
+        nport : int,
         strDBName : str ,
         strID : str,
         strPW : str
     ):
-        self.strURL = strURL,
-        self.strDBName = strDBName,
-        self.strID = strID,
+        self.strURL = strURL
+        self.strDBName = strDBName
+        self.nPort = nport
+        self.strID = strID
         self.strPW = strPW
         dbConn = self.__connectingDB()
         if dbConn['res'] == 'err':
+            print(dbConn)
             self.db = None
             return
         self.db = dbConn['value']
@@ -32,35 +35,53 @@ class DBManager:
             connRes = self.__connRefresh()
             if connRes['res'] == 'err':
                 return connRes
+
         
-        sql = 'SELECT {0} FROM {1} WHERE gif_url = "{2}'.format('*', 'gif_cache_table', strUrl)
-        db = pymysql.connect()
+        sql = 'SELECT {0} FROM {1} WHERE gif_url = "{2}"'.format('*', 'gif_cache_table', strUrl)
         try:
             cur = self.db.cursor()
             cur.execute(sql)
         except Exception as e:
+            print(e)
             return False
         resData = cur.fetchall()
         cur.close()
         if len(resData) <= 0:
-            return self.__resultType("err", 'no Data')
+            return self.__resultType("no", 'no Data')
         
-        return self.__resultType('ok', resData[0]['cache_url'])
+        return self.__resultType('ok', resData[0]['cached_url'])
 
     def insertCacheData(self, strUrl : str, strCachePath : str):
         if self.db == None:
             if self.__connRefresh()['res'] == 'err':
                 return self.__connRefresh()
 
-        sql = 'INSERT INTO "gif_cache_data" () VALUES ("{0}","{1}",DEFAULT)'.format(strUrl, strCachePath)
+        sql = 'INSERT INTO gif_cache_table (gif_url, cached_url, update_date) VALUES ("{0}","{1}", NOW())'.format(strUrl, strCachePath)
 
         cur = self.db.cursor()
         try:
            cur.execute(sql)
         except Exception as e:
             return self.__resultType('err', 'execute err -> {0}'.format(e))
+        
+        cur.close()
             
         return self.__resultType('ok', 'insert ok -> {0} // {1}'.format(strUrl, strCachePath))
+    
+    def delectCachedData(self, strCachedPath:str):
+        if self.db == None:
+            if self.__connectingDB()['res'] == 'err':
+                return self.__connRefresh()
+        
+        sql = 'DELETE FROM `gif_cache_table` WHERE gif_url="{0}"'.format(strCachedPath)
+
+        cur = self.db.cursor()
+        try:
+            cur.execute(sql)
+        except Exception as e:
+            return self.__resultType('err', 'execute Err -> {0}'.format(e))
+        
+        return self.__resultType('ok', '{0} is deleted'.format(strCachedPath))
 
     def __connectingDB(self):
         try:
@@ -69,6 +90,7 @@ class DBManager:
                 db= self.strDBName,
                 user= self.strID,
                 passwd= self.strPW,
+                port= self.nPort,
                 cursorclass= pymysql.cursors.DictCursor,
                 autocommit= True
             )
@@ -77,18 +99,13 @@ class DBManager:
         
         return self.__resultType('ok', db)
 
-    def __selectQuery():
-        return
-    
-    def __insertQuery():
-        return
-    
-    def __updateQuery():
-        return
-
-    def __resultType(res, value):
+    def __resultType(self, res, value):
         return {
             'res' : res,
             'value' : value,
             'type' : str(type(value))
         }
+
+db = DBManager('henrik.kro.kr', 3306, 'Arcacon_Download', 'root', 'PURURU966a#@!')
+print(db.strURL)
+print(db.delectCachedData('asdf'))
