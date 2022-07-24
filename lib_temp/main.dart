@@ -34,6 +34,7 @@ class _SplashState extends State<Splash> {
       print('허락됨');
     } else if (status.isDenied){
       print('거절됨');
+      Permission.contacts.request(); // 허락해달라고 팝업띄우는 코드
       Permission.mediaLibrary.request();
       Permission.storage.request();
     }

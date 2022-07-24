@@ -20,12 +20,7 @@ class FlaskManager{
     this.backendPort ??= 8080;
     this.backendUrl = _urlConstructor(backendUrl)!;
     this.targetUrl = targetUrl;
-  }
-
-  setBackendOptions( String backendUrl ,{int? backendPort}){
-    backendPort ??= this.backendPort;
-    this.backendUrl = backendUrl;
-    this.backendPort = backendPort;
+    
   }
 
   String? _urlConstructor( String url ){
@@ -61,7 +56,6 @@ class FlaskManager{
 
   Future <Map<String, dynamic>> __getConnectResultGet( String url, {Map<String, String>? body}) async{
     Response postData;
-    //print(url);
     try{
       postData = body==null?await http.get(Uri.parse(url)):await http.get(Uri.parse(url), headers: body!);
     }catch(e){
@@ -87,9 +81,9 @@ class FlaskManager{
 
   Future< Map<String, dynamic> > getBackendStates({String? strUrl}) async{
     strUrl ??= "${this.backendUrl}:${this.backendPort.toString()}";
-    var res = await this.__getConnectResultGet(strUrl);
-    //print(res);
-    return res;
+    return this.__getConnectResultGet(
+      strUrl!
+    );
   }
 
   Future< Map<String, dynamic> > getArcaconInformation({String? strUrl}) async {

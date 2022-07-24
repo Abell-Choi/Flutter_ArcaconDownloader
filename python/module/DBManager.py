@@ -105,7 +105,3 @@ class DBManager:
             'value' : value,
             'type' : str(type(value))
         }
-
-db = DBManager('henrik.kro.kr', 3306, 'Arcacon_Download', 'root', 'PURURU966a#@!')
-print(db.strURL)
-print(db.delectCachedData('asdf'))

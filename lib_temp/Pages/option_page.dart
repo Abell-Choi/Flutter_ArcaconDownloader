@@ -57,8 +57,7 @@ class _OptionPageState extends State<OptionPage> {
     this._arg['url'] = this._urlController.text;
     this._arg['port'] = int.parse(this._portController.text);
     this._arg['refreshDelay'] = int.parse(this._refreshController.text);
-    c.setOptionData(this._arg);
-    //print(this._arg);
+    print(this._arg);
     super.dispose();
   }
 

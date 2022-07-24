@@ -54,11 +54,11 @@ class _MainPageState extends State<MainPage> {
   _setBackendStates({isOneProc = false}) async {
     int _maxStack = isOneProc?-1:1;
     while(!this._isDisposed && !(_maxStack==0)){
-    //print(_isProcessing);
+    print(_isProcessing);
       _maxStack ++;
       //print('conf');
       //print(_maxStack);
-      await Future.delayed(Duration(milliseconds: this.c.optionData['refreshDelay']));
+      await Future.delayed(Duration(milliseconds: this.c.optionData!['refreshDelay']));
       if (_flaskManager == null){
         this._backendStates = {
           'res' : 'err',
@@ -66,7 +66,6 @@ class _MainPageState extends State<MainPage> {
         };
         continue;
       }
-      _flaskManager!.setBackendOptions(c.optionData['url'], backendPort: c.optionData['port']);
       this._backendStates = await _flaskManager!.getBackendStates();
       setState(() { });
     }
@@ -121,21 +120,11 @@ class _MainPageState extends State<MainPage> {
       await Future.delayed(Duration(milliseconds: 500));
       setState(() {
         _downloadState[title]['no'] ++;
-        //print(_downloadState[title]['no']);
+        print(_downloadState[title]['no']);
       });
     }
 
     _downloadState[title]['break'] = true;
-    int _failed = 0;
-    for (bool i in _downloadState[title]['res']){
-      if (!i){ _failed ++; }
-    }
-
-    GetSnackBar(
-      duration: Duration(seconds: 5),
-      title: "$title 을 모두 다운로드 하였습니다.",
-      message: "성공 : ${_downloadState[title]['max'] - _failed} \n실패 : ${_failed} \n전체 : ${_downloadState[title]['max']}",
-    ).show();
     _downloadProgress.remove(_downloadState[title]);
     setState(() {});
   }
@@ -276,7 +265,7 @@ class _MainPageState extends State<MainPage> {
   _optionFunc() async {
     await Get.to(()=>OptionPage(), arguments: _optionData);
     await c.setOptionData(this._optionData);
-    //print(this._optionData);
+    print(this._optionData);
     return;
   }
 
@@ -292,8 +281,8 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    //print(c.resultData);
-    this._optionData = Map.from(c.optionData);
+    print(c.resultData);
+    this._optionData = Map.from(c.optionData!);
     this._urlController.text = this._defaultUrl;
     _flaskManager = FlaskManager(
       this._optionData['url'],
@@ -379,7 +368,7 @@ class _MainPageState extends State<MainPage> {
                     this.getOptionbutton(this._optionString),
                     ElevatedButton(
                       onPressed: (){
-                        //print('re');
+                        print('re');
                         for (dynamic i in _downloadProgress){
                           i['break'] = true;
                         }

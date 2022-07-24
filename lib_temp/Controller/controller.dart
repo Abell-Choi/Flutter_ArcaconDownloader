@@ -7,7 +7,7 @@ class AppController extends GetxService {
   static AppController get to => Get.find();
 
   final isInitialized = false.obs;
-  Map<String, dynamic> optionData = {
+  Map<String, dynamic>? optionData = {
     'url' : 'err',
     'port' : 0000,
     'refreshDelay' : 2000
