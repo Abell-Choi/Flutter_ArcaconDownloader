@@ -55,7 +55,7 @@ def convertMP4toGIF():
     if selRes['res'] == 'ok':
         #/file/redirect/
         if os.path.exists('./{0}/{1}'.format(strImageDicName, selRes['value'])):
-            selRes['value'] = '/{0}'.format(selRes['value'])
+            selRes['value'] = '/file/redirect/{0}'.format(selRes['value'])
             return json.dumps(selRes)
         
         db.delectCachedData(selRes['value'])
