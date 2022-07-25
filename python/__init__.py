@@ -13,11 +13,11 @@ strImageDicName = 'image_temp'
 app = Flask(__name__)
 
 ### DB Setting
-strDBURL = 'henrik.kro.kr'
+strDBURL = '127.0.0.1'
 nDBPort = 3306
 strDBName = 'Arcacon_Download'
 strDBID = 'root'
-strDBPW = 'PURURU966a#@!'
+strDBPW = 'PWPWPWPW'
 
 # Utility
 def __resultType(strRes:str='err', objValue:all='err'):
