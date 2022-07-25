@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_this, sort_child_properties_last, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -32,9 +34,9 @@ class _OptionPageState extends State<OptionPage> {
 
   @override
   void initState() {
-    this._urlController.text = c.optionData!['url'];
-    this._portController.text = c.optionData!['port'].toString();
-    this._refreshController.text = c.optionData!['refreshDelay'].toString();
+    this._urlController.text = c.optionData['url'];
+    this._portController.text = c.optionData['port'].toString();
+    this._refreshController.text = c.optionData['refreshDelay'].toString();
     this._arg = Get.arguments;
     super.initState();
   }
@@ -42,16 +44,16 @@ class _OptionPageState extends State<OptionPage> {
   @override
   void dispose(){
     if (int.tryParse(this._portController.text) == null){
-      this._portController.text = c.optionData!['port'].toString();
+      this._portController.text = c.optionData['port'].toString();
     }
 
     if (int.parse(this._portController.text) > 65535 ||
     int.parse(this._portController.text) < 1){
-      this._portController.text = c.optionData!['port'].toString();
+      this._portController.text = c.optionData['port'].toString();
     }
 
     if (int.parse(this._refreshController.text) < 100){
-      this._refreshController.text = c.optionData!['refreshDelay'].toString();
+      this._refreshController.text = c.optionData['refreshDelay'].toString();
     }
 
     this._arg['url'] = this._urlController.text;

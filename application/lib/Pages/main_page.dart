@@ -1,4 +1,5 @@
 
+import 'package:application/Pages/search_page.dart';
 import 'package:application/Utility/FileManger.dart';
 import 'package:application/Utility/FlaskManager.dart';
 import 'package:get/get.dart';
@@ -92,6 +93,17 @@ class _MainPageState extends State<MainPage> {
   }
 
   _downloadImage(String title, List<dynamic> targetUrl, dynamic conInfo) async {
+    if (_downloadState.keys.toList().indexOf(title) != -1){
+      if (!_downloadState[title]['break']){
+        GetSnackBar(
+          title: 'Error',
+          message: '${title} 은 이미 다운중입니다',
+          duration: Duration(seconds: 5),
+          snackPosition: SnackPosition.TOP,
+        ).show();
+        return;
+      }
+    }
     if (_downloadState.keys.toList().indexOf(title) == -1){
 
       var now = new DateTime.now();
@@ -175,10 +187,8 @@ class _MainPageState extends State<MainPage> {
     return cd;
   }
 
-  Widget getDownloadButton(String txt){
+  Widget _getDownloadButton(String txt){
     return ElevatedButton(
-      style: ButtonStyle(
-      ),
       onPressed: (){
         _downloadFunc();
         
@@ -188,7 +198,25 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  Widget getOptionbutton(String txt){
+  Widget _getSearchButton(String txt){
+    return ElevatedButton(
+      onPressed: () async {
+        var _searchPage = await Get.to(()=>Search_Page(), arguments: _optionData);
+        if (_searchPage==null){
+          return;
+        }
+
+        _downloadImage(
+          _searchPage['title'],
+          _searchPage['conList'],
+          _searchPage
+        );
+      },
+      child: this._defaultTextCustom(txt),
+    );
+  }
+
+  Widget _getOptionButton(String txt){
     return ElevatedButton(
       onPressed: () =>_optionFunc(), 
       child: this._defaultTextCustom(txt)
@@ -236,6 +264,12 @@ class _MainPageState extends State<MainPage> {
     _customArgs['conList'].addAll(_conList);
     _customArgs['option'] = Map.from(this._optionData);
 
+
+    for (String i in _customArgs['conList']){
+      if (i.substring(i.length-3) == 'gif'){
+        print(i);
+      }
+    }
     var data = await Get.dialog( Result_Dialog(), arguments: _customArgs );
     this._isProcessing = false;
     if (data == null) { return; }
@@ -245,14 +279,6 @@ class _MainPageState extends State<MainPage> {
           _downloadState[_customArgs['title']]['no']){
           
           _downloadState.removeWhere((key, value) => key == _customArgs['title']);
-      }else{
-        GetSnackBar(
-          title: 'Error',
-          message: '${_customArgs['title']} 은 이미 다운중입니다',
-          duration: Duration(seconds: 5),
-          snackPosition: SnackPosition.TOP,
-        ).show();
-        return;
       }
     }
 
@@ -319,10 +345,11 @@ class _MainPageState extends State<MainPage> {
         mainAxisSize: MainAxisSize.max ,
         children: [
           Container(
+            width: size.width,
             height: size.height *0.5,
             color: Colors.lightBlue,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
                   this._title,
@@ -331,7 +358,7 @@ class _MainPageState extends State<MainPage> {
                     fontSize: 24
                   ),
                 ),
-                Container(
+                Container(  //url inputter
                   margin: EdgeInsets.all(12),
                   width: size.width*0.7,
                   child: TextField(
@@ -354,7 +381,7 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ),
                 ),
-                Container(
+                Container(  // backend States
                   alignment: Alignment.center,
                   width: size.width *.7,
                   child: Card(
@@ -362,7 +389,7 @@ class _MainPageState extends State<MainPage> {
                     child: ListTile(
                       onLongPress: () async {
                         await Get.to(OptionPage(), arguments: _optionData);
-                        c.setOptionData(_optionData);
+                        //c.setOptionData(_optionData);
                       },
                       onTap: () => _setBackendStates(isOneProc: true),
 
@@ -374,22 +401,12 @@ class _MainPageState extends State<MainPage> {
                 ),
                 ButtonBar(
                   alignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    this.getDownloadButton(this._downloadString),
-                    this.getOptionbutton(this._optionString),
-                    ElevatedButton(
-                      onPressed: (){
-                        //print('re');
-                        for (dynamic i in _downloadProgress){
-                          i['break'] = true;
-                        }
-
-                        _downloadProgress = List.from([]);
-                      },
-                      child: this._defaultTextCustom('RESET')
-                    )
+                    this._getDownloadButton('다운로드'),
+                    this._getSearchButton('검색'),
                   ],
-                ),
+                )
               ],
             ),
           ),

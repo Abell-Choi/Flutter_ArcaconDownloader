@@ -46,7 +46,7 @@ class AppController extends GetxService {
 
     Map<String, dynamic> _optionData = await FileManager().getOptionData();
     print(_optionData);
-    if (_optionData!['res'] == 'err'){
+    if (_optionData['res'] == 'err'){
       resultData = _optionData.obs;
       return;
     }

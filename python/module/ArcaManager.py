@@ -96,10 +96,12 @@ class ArcaconManager:
             return req
         
         bs = BeautifulSoup(req['value'].content, 'html.parser')
-        selector = 'body > div.root-container > div.content-wrapper.clearfix > article > div > div > div.emoticon-list > a > div > img'
-        bs = 'https:' +bs.select(selector)[0]['src']
-        return self.__resultType('ok', bs)
+        selector = 'div.emoticon-list > a > .emoticon > video'
+        if (len(bs.select(selector)) == 0):
+            selector = 'div.emoticon-list > a > .emoticon > img'
+        
 
+        return self.__resultType('ok', 'https:' +bs.select(selector)[0]['src'])
 
     def __getContent(self, strUrl):
         try:
@@ -122,3 +124,6 @@ class ArcaconManager:
             'type' : str(type(objValue))
         }
 
+
+d = ArcaconManager('https://arca.live/e/15893?target=title&keyword=%EB%B6%95%EA%B4%B4&sort=rank&p=1')
+print(d.getContentTitle())
