@@ -67,10 +67,11 @@ class Arcacon{
       temp.add(int.tryParse(i.querySelector('div > div > .count')!.text.split('번')[0])!);
       temp.add(i.querySelector('div > div > .maker')!.text);
       temp.add(i.attributes['href']);
+      imgTemp = 'https:';
       try{
-        imgTemp = i.querySelector('div > img')!.attributes['src'];
+        imgTemp += i.querySelector('div > img')!.attributes['src'];
       }catch(e){
-        imgTemp = i.querySelector('div > video')!.attributes['src'];
+        imgTemp += i.querySelector('div > video')!.attributes['src'];
       }
 
       if (imgTemp.substring(imgTemp.length-3) == 'mp4'){
@@ -79,10 +80,8 @@ class Arcacon{
           print("img convert err -> ${fls}");
           imgTemp = _unknownImgUrl;
         }else{
-          imgTemp = "http:${_flaskManager.getFullBackendUrl()}${fls['value']}";
+          imgTemp = "${_flaskManager.getFullBackendUrl()}${fls['value']}";
         }
-      }else{
-        imgTemp = "http:${imgTemp}";
       }
       temp.add(imgTemp);
       emoticon_data.add(

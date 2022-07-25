@@ -33,6 +33,8 @@ class _Search_PageState extends State<Search_Page> {
 
   Card _getListedCard(int nNum) {
     Map<String, dynamic> _castMap = Map.from(_listResultData[nNum]);
+    print("cast ----> ${_castMap['title-img']}");
+    print('casting');
     Card card = Card(
       child: ListTile(
           onTap: () => _downloadFunc(_castMap),
@@ -109,7 +111,8 @@ class _Search_PageState extends State<Search_Page> {
     List<String> _conList = [];
     for (String i in _customArgs['conList']) {
       if (i.substring(i.length - 3) == 'mp4') {
-        var _convertRes = await _flaskManager.convertMP4ToGIF(i);
+        print("uri -> $i");
+        var _convertRes = await _flaskManager.convertMP4ToGIF("$i");
         if (_convertRes['res'] == 'err') {
           GetSnackBar(
             title: 'Err',
